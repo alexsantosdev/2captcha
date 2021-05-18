@@ -31,28 +31,27 @@ start = driver.find_element_by_xpath('/html/body/div/div[3]/div[1]/div/div[2]/di
 start.click()
 
 for x in range(0, 10):
+    img = WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, "capimg")))
+    image = img.get_attribute("src")
+
+    solver = TwoCaptcha('b9611f767e716190f08a5d10303cdcb0')
+
+    result = None
+    
     start_time = datetime.datetime.utcnow()
-    while(datetime.datetime.utcnow().second < start_time.second - 18):
-        try:
-            img = WebDriverWait(driver, 100).until(
-                EC.presence_of_element_located((By.ID, "capimg")))
-
-            image = img.get_attribute("src")
-
-            solver = TwoCaptcha('b9611f767e716190f08a5d10303cdcb0')
+    while(datetime.datetime.utcnow().second):
+        if datetime.datetime.utcnow().second < start_time.second + 16:
             result = solver.normal(image)
-
             m_result = json.dumps(result)
             json_object = json.loads(m_result)
             code = json_object["code"]
 
-            solve = driver.find_element_by_id('code')
+            solve = WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, "code")))
             solve.send_keys(code + Keys.ENTER)
-        except:
-            pass
-    else:
-        solve = driver.find_element_by_id('code')
-        solve.send_keys(Keys.ALT, "Q")
-        x += 1
+            x+=1
+        else:
+            solve = WebDriverWait(driver, 100).until(EC.presence_of_element_located((By.ID, "code")))
+            solve.send_keys(Keys.ALT, "Q")
+            x += 1
 
 driver.quit()
